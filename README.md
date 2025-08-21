@@ -17,8 +17,6 @@ Panduan lengkap untuk menjalankan aplikasi Shortleak menggunakan Docker dengan s
 cp .env.example .env
 cp shortleak-be/.env.example shortleak-be/.env
 cp shortleak-fe/.env.example shortleak-fe/.env
-
-# Edit file .env sesuai kebutuhan
 ```
 
 ### 2. Jalankan Development Environment
@@ -41,7 +39,7 @@ docker-compose up --build
 docker-compose up --build
 ```
 
-### Test Environment
+### Test Environment (ke folder shortleak-be)
 - **Backend**: Go dengan test configuration
 - **Auto Migration**: Ya
 - **Coverage Report**: Ya
@@ -53,17 +51,17 @@ go test ./... -coverprofile=coverage && go tool cover -html=coverage
 
 ## 📊 Database Management
 
-### Migrations
+### Migrations (ke folder shortleak-be)
 
 ```bash
 # Development (Ke folder shortleak-be)
 go run ./cmd/migrate/main.go refresh"
 ```
 
-### Seeds
+### Seeds (ke folder shortleak-be)
 
 ```bash
-# Development
+# Development (ke folder shortleak-be)
 go run ./cmd/seed/main.go
 ```
 
@@ -106,7 +104,7 @@ abcDEF123!
 |---------|------------|------|------------|
 | Frontend | http://localhost:5173 | - | http://localhost:5173 |
 | Backend | http://localhost:8080 | - | http://localhost:8080 |
-| PostgreSQL | localhost:5433
+| PostgreSQL | localhost:5432
 | pgAdmin | http://localhost:8082 | - | - |
 
 ## 🐳 Docker Commands Reference
