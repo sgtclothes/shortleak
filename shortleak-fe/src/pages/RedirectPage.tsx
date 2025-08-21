@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Redirecting from "../components/Redirecting";
 
-const baseUrlAPI = import.meta.env.VITE_BASE_URL_API ?? "http://localhost:8090";
+const baseUrlAPI = import.meta.env.VITE_BASE_URL_API ?? "http://173.249.46.3:8090";
 
 export default function RedirectPage() {
     const { shortToken } = useParams();
