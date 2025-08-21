@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  run:
+    cmds:
+      - go run main.go
+  build:
+    cmds:
+      - go build -o app main.go
+  migrate:
+    cmds:
+      - go run ./cmd/migrate/main.go migrate
+  migrate:rollback:
+    cmds:
+      - go run ./cmd/migrate/main.go rollback
+  migrate:refresh:
+    cmds:
+      - go run ./cmd/migrate/main.go refresh
+  seed:
+    cmds:
+      - go run ./cmd/seed/main.go
+  test:
+    cmds:
+      - go test ./... -coverprofile=coverage && go tool cover -html=coverage

@@ -1,0 +1,10 @@
+/** Setup automatic restart when file changes */
+
+go install github.com/air-verse/air@latest
+$env:PATH += ";$(go env GOPATH)\bin"
+air
+
+/** Jalankan query berikut agar PostgreSQL dapat enable uuid_generate_v4() */
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+

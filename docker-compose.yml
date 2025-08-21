@@ -1,0 +1,239 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE_DEVELOPMENT}
+      POSTGRES_USER: ${DB_USERNAME_DEVELOPMENT}
+      POSTGRES_PASSWORD: ${DB_PASSWORD_DEVELOPMENT}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT_DEVELOPMENT:-5433}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME_DEVELOPMENT} -d ${DB_DATABASE_DEVELOPMENT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL Database for Testing
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: postgres_test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE_TEST}
+      POSTGRES_USER: ${DB_USERNAME_TEST}
+      POSTGRES_PASSWORD: ${DB_PASSWORD_TEST}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT_TEST:-5434}:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME_TEST} -d ${DB_DATABASE_TEST}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - test
+
+  # PostgreSQL Database for Production
+  postgres-prod:
+    image: postgres:15-alpine
+    container_name: postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE_PRODUCTION}
+      POSTGRES_USER: ${DB_USERNAME_PRODUCTION}
+      POSTGRES_PASSWORD: ${DB_PASSWORD_PRODUCTION}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT_PRODUCTION:-5435}:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME_PRODUCTION} -d ${DB_DATABASE_PRODUCTION}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - production
+
+  # Backend Service for Development
+  shortleak-be-dev:
+    build:
+      context: ./shortleak-be
+      dockerfile: Dockerfile
+      target: development
+    container_name: shortleak-be-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PLATFORM=${PLATFORM}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST_DEVELOPMENT=postgres-dev
+      - DB_PORT_DEVELOPMENT=5432
+      - DB_USERNAME_DEVELOPMENT=${DB_USERNAME_DEVELOPMENT}
+      - DB_PASSWORD_DEVELOPMENT=${DB_PASSWORD_DEVELOPMENT}
+      - DB_DATABASE_DEVELOPMENT=${DB_DATABASE_DEVELOPMENT}
+      - DB_DIALECT_DEVELOPMENT=${DB_DIALECT_DEVELOPMENT}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./shortleak-be:/app
+      - /app/node_modules
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations for development...' &&
+        NODE_ENV=development go run ./cmd/migrate/main.go refresh &&
+        echo 'Starting development server...' &&
+        go run main.go
+      "
+   # Backend Service for Testing
+  shortleak-be-test:
+    build:
+      context: ./shortleak-be
+      dockerfile: Dockerfile
+      target: test
+    container_name: shortleak-be-test
+    environment:
+      - NODE_ENV=test
+      - PLATFORM=${PLATFORM}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST_TEST=postgres-test
+      - DB_PORT_TEST=5432
+      - DB_USERNAME_TEST=${DB_USERNAME_TEST}
+      - DB_PASSWORD_TEST=${DB_PASSWORD_TEST}
+      - DB_DATABASE_TEST=${DB_DATABASE_TEST}
+      - DB_DIALECT_TEST=${DB_DIALECT_TEST}
+    env_file:
+      - ./shortleak-be/.env
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./shortleak-be:/app
+      - /app/node_modules
+    profiles:
+      - test
+    command: >
+      sh -c "
+        echo 'Waiting for test database...' &&
+        sleep 5 &&
+        echo 'Running migrations for test...' &&
+        NODE_ENV=test go run ./cmd/migrate/main.go refresh &&
+        echo 'Running tests...' &&
+        go test ./... -coverprofile=coverage.out &&
+        echo 'Generating coverage report...' &&
+        go tool cover -html=coverage.out -o coverage.html &&
+        echo 'Tests completed!'
+      "
+
+  # Backend Service for Production
+  shortleak-be-prod:
+    build:
+      context: ./shortleak-be
+      dockerfile: Dockerfile
+      target: production
+    container_name: shortleak-be-prod
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PLATFORM=${PLATFORM}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST_PRODUCTION=postgres-prod
+      - DB_PORT_PRODUCTION=5432
+      - DB_USERNAME_PRODUCTION=${DB_USERNAME_PRODUCTION}
+      - DB_PASSWORD_PRODUCTION=${DB_PASSWORD_PRODUCTION}
+      - DB_DATABASE_PRODUCTION=${DB_DATABASE_PRODUCTION}
+      - DB_DIALECT_PRODUCTION=${DB_DIALECT_PRODUCTION}
+    env_file:
+      - ./shortleak-be/.env
+    ports:
+      - "${BACKEND_PROD_PORT:-8081}:8080"
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
+    networks:
+      - app-network
+    profiles:
+      - production
+    command: >
+      sh -c "
+        echo 'Waiting for production database...' &&
+        sleep 5 &&
+        echo 'Running migrations for production...' &&
+        NODE_ENV=production go run ./cmd/migrate/main.go migrate &&
+        echo 'Starting production server...' &&
+        ./main
+      "
+  # Frontend Service
+  shortleak-fe:
+    build:
+      context: ./shortleak-fe
+      dockerfile: Dockerfile
+    container_name: shortleak-fe
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - shortleak-be-dev
+    networks:
+      - app-network
+    environment:
+      - VITE_BASE_URL=http://localhost:5173
+      - VITE_BASE_URL_API=http://localhost:8080
+
+  # pgAdmin (Optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: app_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "${PGADMIN_PORT:-8082}:80"
+    depends_on:
+      - postgres-dev
+    networks:
+      - app-network
+    profiles:
+      - tools
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  postgres_test_data:
+    driver: local
+  postgres_prod_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
