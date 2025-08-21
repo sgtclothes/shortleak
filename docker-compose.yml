@@ -93,7 +93,7 @@ services:
       - DB_DATABASE_DEVELOPMENT=${DB_DATABASE_DEVELOPMENT}
       - DB_DIALECT_DEVELOPMENT=${DB_DIALECT_DEVELOPMENT}
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "${BACKEND_PORT:-8090}:8090"
     depends_on:
       postgres-dev:
         condition: service_healthy
@@ -174,7 +174,7 @@ services:
     env_file:
       - ./shortleak-be/.env
     ports:
-      - "${BACKEND_PROD_PORT:-8081}:8080"
+      - "${BACKEND_PROD_PORT:-8081}:8090"
     depends_on:
       postgres-prod:
         condition: service_healthy
@@ -206,7 +206,7 @@ services:
       - app-network
     environment:
       - VITE_BASE_URL=http://localhost:5173
-      - VITE_BASE_URL_API=http://localhost:8080
+      - VITE_BASE_URL_API=http://localhost:8090
 
   # pgAdmin (Optional - for database management)
   pgadmin:

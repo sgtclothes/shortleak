@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 
-const baseUrlAPI = import.meta.env.VITE_BASE_URL_API ?? "http://localhost:8080";
+const baseUrlAPI = import.meta.env.VITE_BASE_URL_API ?? "http://localhost:8090";
 const baseUrl = import.meta.env.VITE_BASE_URL ?? "http://localhost:5173";
 // Types
 interface Link {

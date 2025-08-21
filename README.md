@@ -30,7 +30,7 @@ docker-compose up --build
 
 ### Development Environment
 - **Database**: PostgreSQL di port 5432
-- **Backend**: Go server di port 8080  
+- **Backend**: Go server di port 8090  
 - **Frontend**: React app di port 5173
 - **Hot Reload**: Enabled untuk development
 
@@ -103,7 +103,7 @@ abcDEF123!
 | Service | Development | Test | Production |
 |---------|------------|------|------------|
 | Frontend | http://localhost:5173 | - | http://localhost:5173 |
-| Backend | http://localhost:8080 | - | http://localhost:8080 |
+| Backend | http://localhost:8090 | - | http://localhost:8090 |
 | PostgreSQL | localhost:5432
 | pgAdmin | http://localhost:8082 | - | - |
 

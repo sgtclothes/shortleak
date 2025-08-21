@@ -19,7 +19,7 @@ COPY . .
 # Development stage
 FROM base AS development
 RUN echo "Development stage"
-EXPOSE 8080
+EXPOSE 8090
 CMD ["go", "run", "main.go"]
 
 # Test stage
@@ -48,7 +48,7 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/cmd ./cmd
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8090
 
 # Command to run
 CMD ["./main"]
