@@ -205,8 +205,8 @@ services:
     networks:
       - app-network
     environment:
-      - VITE_BASE_URL=http://localhost:5173
-      - VITE_BASE_URL_API=http://localhost:8090
+      - VITE_BASE_URL=${VITE_BASE_URL}
+      - VITE_BASE_URL_API=${VITE_BASE_URL_API}
 
   # pgAdmin (Optional - for database management)
   pgadmin:
