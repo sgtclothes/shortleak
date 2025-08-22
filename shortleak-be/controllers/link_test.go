@@ -43,7 +43,7 @@ func (m MockValidator) GenerateRandomString(n int) string {
 }
 
 func setupTestLinkDB(t *testing.T) {
-	dsn := "host=postgres-test user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn := "host=localhost user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	if os.Getenv("DB_DATABASE_TEST") != "" {
 		dsn = os.Getenv("DB_DATABASE_TEST")
 	}
@@ -420,7 +420,7 @@ func TestCreateLinkShortTokenCollision(t *testing.T) {
 }
 
 func TestCreateLinkLogSaveError(t *testing.T) {
-	dsn := "host=postgres-test user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn := "host=localhost user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	if os.Getenv("DB_DATABASE_TEST") != "" {
 		dsn = os.Getenv("DB_DATABASE_TEST")
 	}
@@ -539,7 +539,7 @@ func TestRedirectLinkInvalidClientID(t *testing.T) {
 }
 
 func setupTestLinkDBNoLogs(t *testing.T) {
-	dsn := "host=postgres-test user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn := "host=localhost user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("failed to connect test DB: %v", err)

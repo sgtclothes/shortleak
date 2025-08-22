@@ -13,9 +13,9 @@ func TestLoadConfigWithEnvVars(t *testing.T) {
 	os.Setenv("DB_DATABASE_TEST", "shortleak-test")
 	os.Setenv("DB_USERNAME_TEST", "postgres")
 	os.Setenv("DB_PASSWORD_TEST", "12345")
-	os.Setenv("DB_HOST_TEST", "postgres-test")
+	os.Setenv("DB_HOST_TEST", "localhost")
 	os.Setenv("DB_DIALECT_TEST", "postgres")
-	os.Setenv("DB_PORT_TEST", "5433")
+	os.Setenv("DB_PORT_TEST", "5432")
 
 	defer func() {
 		os.Unsetenv("NODE_ENV")
@@ -33,7 +33,7 @@ func TestLoadConfigWithEnvVars(t *testing.T) {
 	assert.Equal(t, "shortleak-test", cfg.Database)
 	assert.Equal(t, "postgres", cfg.User)
 	assert.Equal(t, "12345", cfg.Password)
-	assert.Equal(t, "postgres-test", cfg.Host)
+	assert.Equal(t, "localhost", cfg.Host)
 	assert.Equal(t, "postgres", cfg.Dialect)
 	assert.Equal(t, "5432", cfg.Port)
 }

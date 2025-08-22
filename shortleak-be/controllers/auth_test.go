@@ -24,7 +24,7 @@ import (
 )
 
 func setupTestAuthDB(t *testing.T) {
-	dsn := "host=postgres-test user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn := "host=localhost user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	if os.Getenv("DB_DATABASE_TEST") != "" {
 		dsn = os.Getenv("DB_DATABASE_TEST")
 	}
@@ -325,7 +325,7 @@ func TestLoginValidationErrors(t *testing.T) {
 
 func TestLoginDBInsertUserFails(t *testing.T) {
 	// konek ke Postgres test
-	dsn := "host=postgres-test user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn := "host=localhost user=postgres password=12345 dbname=shortleak-test port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	gdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("failed connect to test db: %v", err)

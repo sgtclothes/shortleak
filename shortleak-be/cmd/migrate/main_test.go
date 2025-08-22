@@ -15,7 +15,7 @@ func init() {
 	_ = os.Setenv("DB_DATABASE_TEST", "shortleak-test")
 	_ = os.Setenv("DB_USERNAME_TEST", "postgres")
 	_ = os.Setenv("DB_PASSWORD_TEST", "12345")
-	_ = os.Setenv("DB_HOST_TEST", "postgres-test")
+	_ = os.Setenv("DB_HOST_TEST", "localhost")
 	_ = os.Setenv("DB_DIALECT_TEST", "postgres")
 	_ = os.Setenv("DB_PORT_TEST", "5432")
 }
